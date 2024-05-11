@@ -9,6 +9,7 @@
 		"test:watch": "pnpm test -- --watch",
 		"test:ci": "pnpm test -- --coverage --ci",
 		"dev": "nodemon ./src/main.ts",
+		"dev:cli": "nodemon ./src/cli.ts",
 		"up": "docker compose up -d",
 		"down": "docker compose down"
 	},
