@@ -17,11 +17,12 @@ VALUES
 
 CREATE TABLE IF NOT EXISTS store.coupon (
     code TEXT PRIMARY KEY,
-    percentage NUMERIC
+    percentage NUMERIC,
+    expire_date TIMESTAMP
 );
 
-INSERT INTO store.coupon (code, percentage)
+INSERT INTO store.coupon (code, percentage, expire_date)
 VALUES
-    ('VALE10', 10),
-    ('VALE20', 20),
-    ('VALE50', 50);
+    ('VALE10', 10, '2025-01-01T00:00:00'),
+    ('VALE20', 20, '2025-01-01T00:00:00'),
+    ('VALE50_EXPIRED', 50, '2024-01-01T00:00:00');

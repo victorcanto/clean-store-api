@@ -16,13 +16,25 @@ router.post("/checkout", async (req, res) => {
 		return res.status(422).json({ message: "Invalid cpf" });
 	}
 	let total = 0;
+	const productsIds = new Set();
 	for (const item of items) {
+		if (productsIds.has(item.idProduct)) {
+			return res.status(422).json({
+				message: "Duplicated product in the same order",
+			});
+		}
+		productsIds.add(item.idProduct);
 		const [product] = await connection.query(
 			"select * from store.product where id_product = $1",
 			[item.idProduct]
 		);
 		if (!product) {
 			return res.status(422).json({ message: "Product not found" });
+		}
+		if (item.quantity <= 0) {
+			return res
+				.status(422)
+				.json({ message: "Quantity must be positive" });
 		}
 		total += parseFloat(product.price) * item.quantity;
 	}
@@ -32,10 +44,10 @@ router.post("/checkout", async (req, res) => {
 			"select * from store.coupon where code = $1",
 			[couponCode]
 		);
-		if (!coupon) {
-			return res.status(422).json({ message: "Coupon not found" });
+		const today = new Date();
+		if (coupon && coupon.expire_date.getTime() > today.getTime()) {
+			total -= total * (coupon.percentage / 100);
 		}
-		total -= total * (coupon.percentage / 100);
 	}
 	return res.status(200).json({ message: "Success", total });
 });
