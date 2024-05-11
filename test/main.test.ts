@@ -72,7 +72,7 @@ describe("Validacao de CPFs", () => {
 		);
 		expect(response.status).toBe(200);
 		const output = response.data;
-		expect(output.total).toBe(6090);
+		expect(output.total).toBe(6350);
 	});
 
 	test("Nao deve fazer um pedido com produto que nao existe", async () => {
@@ -107,7 +107,7 @@ describe("Validacao de CPFs", () => {
 		);
 		expect(response.status).toBe(200);
 		const output = response.data;
-		expect(output.total).toBe(4872);
+		expect(output.total).toBe(5132);
 	});
 
 	test("Nao deve aplicar o desconto se o cupom for invalido", async () => {
@@ -127,7 +127,7 @@ describe("Validacao de CPFs", () => {
 		);
 		expect(response.status).toBe(200);
 		const output = response.data;
-		expect(output.total).toBe(6090);
+		expect(output.total).toBe(6350);
 	});
 
 	test("Deve fazer um pedido com 3 produtos com cupom expirado", async () => {
@@ -147,7 +147,7 @@ describe("Validacao de CPFs", () => {
 		);
 		expect(response.status).toBe(200);
 		const output = response.data;
-		expect(output.total).toBe(6090);
+		expect(output.total).toBe(6350);
 	});
 
 	test("Deve fazer um pedido com quantidade negativa", async () => {
@@ -181,5 +181,35 @@ describe("Validacao de CPFs", () => {
 		expect(response.status).toBe(422);
 		const output = response.data;
 		expect(output.message).toBe("Duplicated product in the same order");
+	});
+
+	test("Deve fazer um pedido calculando o frete", async () => {
+		const input = {
+			cpf: validCpfs[0],
+			items: [{ idProduct: 1, quantity: 1 }],
+		};
+
+		const response = await axios.post(
+			"http://localhost:3333/checkout",
+			input
+		);
+		expect(response.status).toBe(200);
+		const output = response.data;
+		expect(output.total).toBe(1030);
+	});
+
+	test("Deve retornar o preco minimo de frete caso ele seja inferior ao valor calculado", async () => {
+		const input = {
+			cpf: validCpfs[0],
+			items: [{ idProduct: 3, quantity: 1 }],
+		};
+
+		const response = await axios.post(
+			"http://localhost:3333/checkout",
+			input
+		);
+		expect(response.status).toBe(200);
+		const output = response.data;
+		expect(output.total).toBe(40);
 	});
 });
