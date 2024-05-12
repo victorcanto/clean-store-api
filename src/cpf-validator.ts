@@ -1,5 +1,5 @@
 export class CpfValidator {
-	validate(rawCpf: string): boolean {
+	static validate(rawCpf: string): boolean {
 		if (!rawCpf) return false;
 		const cleanCpf = rawCpf.replace(/\D/g, "");
 		if (this.isInvalidLength(cleanCpf)) return false;
@@ -11,7 +11,7 @@ export class CpfValidator {
 		return validatedDigit === actualDigit;
 	}
 
-	private calculateDigits(cpf: string, factor: number): number {
+	private static calculateDigits(cpf: string, factor: number): number {
 		let total = 0;
 		for (const digit of cpf) {
 			if (factor > 1) {
@@ -22,16 +22,16 @@ export class CpfValidator {
 		return rest < 2 ? 0 : 11 - rest;
 	}
 
-	private isInvalidLength(cpf: string): boolean {
+	private static isInvalidLength(cpf: string): boolean {
 		return cpf.length !== 11;
 	}
 
-	private allDigitsTheSame(cpf: string): boolean {
+	private static allDigitsTheSame(cpf: string): boolean {
 		const [firstDigit] = cpf;
 		return [...cpf].every((digit) => digit === firstDigit);
 	}
 
-	private extractDigits(cpf: string): string {
+	private static extractDigits(cpf: string): string {
 		return cpf.slice(9);
 	}
 }
