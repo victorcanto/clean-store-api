@@ -1,13 +1,11 @@
+import Checkout, { type CheckoutInput } from "./checkout";
+import ProductDataDb from "./product-data-db";
+import CouponDataDb from "./coupon-data-db";
 import axios from "axios";
+
 axios.defaults.validateStatus = () => true;
 
-type Input = {
-	cpf: string;
-	items: { idProduct: string; quantity: number }[];
-	coupon: string;
-};
-
-const input: Input = {
+const input: CheckoutInput = {
 	cpf: "",
 	items: [],
 	coupon: "",
@@ -23,7 +21,10 @@ process.stdin.on("data", async (data) => {
 	if (command.startsWith("add-item")) {
 		const params = command.replace("add-item ", "");
 		const [idProduct, quantity] = params.split(" ");
-		input.items.push({ idProduct, quantity: parseInt(quantity) });
+		input.items.push({
+			idProduct: parseInt(idProduct),
+			quantity: parseInt(quantity),
+		});
 	}
 
 	if (command.startsWith("set-coupon")) {
@@ -32,11 +33,17 @@ process.stdin.on("data", async (data) => {
 	}
 
 	if (command.startsWith("checkout")) {
-		const response = await axios.post(
-			"http://localhost:3333/checkout",
-			input
-		);
-		console.log(response.data);
+		try {
+			const checkout = new Checkout(
+				new ProductDataDb(),
+				new CouponDataDb()
+			);
+			const output = await checkout.execute(input);
+			console.log(output.total);
+			return output.total;
+		} catch (error: any) {
+			console.log(error.message);
+		}
 	}
 
 	if (command.startsWith("exit")) {
