@@ -23,6 +23,28 @@ services:
         depends_on:
             - postgres
 
+    rabbitmq:
+        image: rabbitmq:3-management
+        restart: always
+        container_name: "rabbitmq"
+        ports:
+            - 5672:5672
+            - 15672:15672
+        environment:
+            RABBITMQ_DEFAULT_USER: rabbitmq
+            RABBITMQ_DEFAULT_PASS: rabbitmqpass
+        volumes:
+            - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+            - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+        networks:
+            - rabbitmq_go_net
+        depends_on:
+            - postgres  
+
 volumes:
     postgres_data:
     pgadmin_data:
+
+networks:
+    rabbitmq_go_net:
+        driver: bridge
