@@ -6,4 +6,5 @@ export type ProductModel = {
 	height: number;
 	length: number;
 	weight: number;
+	currency: string;
 };

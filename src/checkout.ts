@@ -1,5 +1,6 @@
 import CouponData from "./coupon-data";
 import { CpfValidator } from "./cpf-validator";
+import CurrencyGateway from "./currency-gateway";
 import ProductData from "./product-data";
 
 export default class Checkout {
@@ -16,6 +17,8 @@ export default class Checkout {
 		}
 		let total = 0;
 		let freight = 0;
+		const currencyGateway = new CurrencyGateway();
+		const currencies = await currencyGateway.getCurrencies();
 		const productsIds = new Set();
 		for (const item of items) {
 			if (productsIds.has(item.idProduct)) {
@@ -29,7 +32,10 @@ export default class Checkout {
 			if (item.quantity <= 0) {
 				throw new Error("Quantity must be positive");
 			}
-			total += parseFloat(product.price) * item.quantity;
+			total +=
+				parseFloat(product.price) *
+				(currencies[product.currency] || 1) *
+				item.quantity;
 			const volume =
 				(product.width / 100) *
 				(product.height / 100) *
