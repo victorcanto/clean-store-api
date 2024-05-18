@@ -2,6 +2,7 @@ import Checkout from "../src/checkout";
 import CouponData from "../src/coupon-data";
 import { CouponModel } from "../src/coupon-model";
 import CurrencyGateway from "../src/currency-gateway";
+import Mailer from "../src/mailer";
 import ProductData from "../src/product-data";
 import { ProductModel } from "../src/product-model";
 import sinon from "sinon";
@@ -122,5 +123,39 @@ describe("Checkout", () => {
 		const output = await sut.execute(input);
 		expect(output.total).toBe(6680);
 		currencyGatewayStub.restore();
+	});
+
+	test("Deve enviar um email informando que o pedido foi concluído", async () => {
+		const currencyGatewayStub = sinon
+			.stub(CurrencyGateway.prototype, "getCurrencies")
+			.resolves({
+				USD: 3,
+				BRL: 1,
+			});
+		const mailerSpy = sinon.spy(Mailer.prototype, "send");
+		const { sut } = makeSut();
+		const input = {
+			cpf: "454.508.362-52",
+			email: "iamvictorcanto@gmail.com",
+			items: [
+				{ idProduct: 1, quantity: 1 },
+				{ idProduct: 2, quantity: 1 },
+				{ idProduct: 3, quantity: 3 },
+				{ idProduct: 4, quantity: 1 },
+			],
+		};
+
+		const output = await sut.execute(input);
+		expect(output.total).toBe(6680);
+		expect(mailerSpy.calledOnce).toBeTruthy();
+		expect(
+			mailerSpy.calledWith(
+				"iamvictorcanto@gmail.com",
+				"Checkout Success",
+				"Your order was placed with success."
+			)
+		).toBeTruthy();
+		currencyGatewayStub.restore();
+		mailerSpy.restore();
 	});
 });
