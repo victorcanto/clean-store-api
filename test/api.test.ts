@@ -38,7 +38,7 @@ describe("API", () => {
 	test("Nao deve fazer um pedido com produto que nao existe", async () => {
 		const input = {
 			cpf: "454.508.362-52",
-			items: [{ idProduct: 4, quantity: 3 }],
+			items: [{ idProduct: 5, quantity: 3 }],
 		};
 
 		const response = await axios.post(
