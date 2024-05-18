@@ -5,9 +5,8 @@ import CurrencyGateway from "../src/currency-gateway";
 import Mailer from "../src/mailer";
 import ProductData from "../src/product-data";
 import { ProductModel } from "../src/product-model";
-import sinon from "sinon";
 
-const mockCouponDataDb = (): CouponData => {
+const fakeCouponDataDb = (): CouponData => {
 	class CouponDataDbStub implements CouponData {
 		async getCoupon(code: string): Promise<CouponModel> {
 			const coupons: { [code: string]: CouponModel } = {
@@ -33,7 +32,7 @@ const mockCouponDataDb = (): CouponData => {
 	return new CouponDataDbStub();
 };
 
-const mockProductDataDb = (): ProductData => {
+const fakeProductDataDb = (): ProductData => {
 	class ProductDataDbStub implements ProductData {
 		async getProduct(idProduct: number): Promise<ProductModel> {
 			const products: { [idProduct: number]: ProductModel } = {
@@ -84,32 +83,63 @@ const mockProductDataDb = (): ProductData => {
 	return new ProductDataDbStub();
 };
 
+const fakeCurrencyGateway = (): CurrencyGateway => {
+	class CurrencyGatewayStub implements CurrencyGateway {
+		async getCurrencies(): Promise<{ [key: string]: number }> {
+			return Promise.resolve({
+				BRL: 1,
+				USD: 3,
+			});
+		}
+	}
+	return new CurrencyGatewayStub();
+};
+
+const fakeMailer = (): Mailer => {
+	class MailerStub implements Mailer {
+		logs: object[] = [];
+		async send(
+			to: string,
+			subject: string,
+			message: string
+		): Promise<boolean> {
+			return true;
+		}
+	}
+	return new MailerStub();
+};
+
 type SutTypes = {
 	couponDataStub: CouponData;
 	productDataStub: ProductData;
+	currencyGatewayStub: CurrencyGateway;
+	mailerStub: Mailer;
 	sut: Checkout;
 };
 
 const makeSut = (): SutTypes => {
-	const productDataStub = mockProductDataDb();
-	const couponDataStub = mockCouponDataDb();
-	const sut = new Checkout(productDataStub, couponDataStub);
+	const productDataStub = fakeProductDataDb();
+	const couponDataStub = fakeCouponDataDb();
+	const currencyGatewayStub = fakeCurrencyGateway();
+	const mailerStub = fakeMailer();
+	const sut = new Checkout(
+		productDataStub,
+		couponDataStub,
+		currencyGatewayStub,
+		mailerStub
+	);
 	return {
 		couponDataStub,
 		productDataStub,
+		currencyGatewayStub,
+		mailerStub,
 		sut,
 	};
 };
 
 describe("Checkout", () => {
 	test("Deve fazer um pedido com 4 produtos com moedas diferentes", async () => {
-		const currencyGatewayMock = sinon.mock(CurrencyGateway.prototype);
-		currencyGatewayMock.expects("getCurrencies").once().resolves({
-			USD: 3,
-			BRL: 1,
-		});
-
-		const { sut } = makeSut();
+		const { sut, currencyGatewayStub } = makeSut();
 		const input = {
 			cpf: "454.508.362-52",
 			items: [
@@ -119,30 +149,17 @@ describe("Checkout", () => {
 				{ idProduct: 4, quantity: 1 },
 			],
 		};
-
+		const currencyGatewaySpy = jest.spyOn(
+			currencyGatewayStub,
+			"getCurrencies"
+		);
 		const output = await sut.execute(input);
+		expect(currencyGatewaySpy).toHaveBeenCalledTimes(1);
 		expect(output.total).toBe(6680);
-		currencyGatewayMock.verify();
-		currencyGatewayMock.restore();
 	});
 
 	test("Deve enviar um email informando que o pedido foi concluído", async () => {
-		const currencyGatewayMock = sinon.mock(CurrencyGateway.prototype);
-		currencyGatewayMock.expects("getCurrencies").once().resolves({
-			USD: 3,
-			BRL: 1,
-		});
-		const mailerMock = sinon.mock(Mailer.prototype);
-		mailerMock
-			.expects("send")
-			.once()
-			.withArgs(
-				"iamvictorcanto@gmail.com",
-				"Checkout Success",
-				"Your order was placed with success."
-			);
-
-		const { sut } = makeSut();
+		const { sut, mailerStub } = makeSut();
 		const input = {
 			cpf: "454.508.362-52",
 			email: "iamvictorcanto@gmail.com",
@@ -153,12 +170,14 @@ describe("Checkout", () => {
 				{ idProduct: 4, quantity: 1 },
 			],
 		};
-
+		const mailerSpy = jest.spyOn(mailerStub, "send");
 		const output = await sut.execute(input);
+		expect(mailerSpy).toHaveBeenCalledWith(
+			"iamvictorcanto@gmail.com",
+			"Checkout Success",
+			"Your order was placed with success."
+		);
+		expect(mailerSpy).toHaveBeenCalledTimes(1);
 		expect(output.total).toBe(6680);
-		currencyGatewayMock.verify();
-		currencyGatewayMock.restore();
-		mailerMock.verify();
-		mailerMock.restore();
 	});
 });
