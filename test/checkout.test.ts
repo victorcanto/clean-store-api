@@ -103,12 +103,12 @@ const makeSut = (): SutTypes => {
 
 describe("Checkout", () => {
 	test("Deve fazer um pedido com 4 produtos com moedas diferentes", async () => {
-		const currencyGatewayStub = sinon
-			.stub(CurrencyGateway.prototype, "getCurrencies")
-			.resolves({
-				USD: 3,
-				BRL: 1,
-			});
+		const currencyGatewayMock = sinon.mock(CurrencyGateway.prototype);
+		currencyGatewayMock.expects("getCurrencies").once().resolves({
+			USD: 3,
+			BRL: 1,
+		});
+
 		const { sut } = makeSut();
 		const input = {
 			cpf: "454.508.362-52",
@@ -122,17 +122,26 @@ describe("Checkout", () => {
 
 		const output = await sut.execute(input);
 		expect(output.total).toBe(6680);
-		currencyGatewayStub.restore();
+		currencyGatewayMock.verify();
+		currencyGatewayMock.restore();
 	});
 
 	test("Deve enviar um email informando que o pedido foi concluído", async () => {
-		const currencyGatewayStub = sinon
-			.stub(CurrencyGateway.prototype, "getCurrencies")
-			.resolves({
-				USD: 3,
-				BRL: 1,
-			});
-		const mailerSpy = sinon.spy(Mailer.prototype, "send");
+		const currencyGatewayMock = sinon.mock(CurrencyGateway.prototype);
+		currencyGatewayMock.expects("getCurrencies").once().resolves({
+			USD: 3,
+			BRL: 1,
+		});
+		const mailerMock = sinon.mock(Mailer.prototype);
+		mailerMock
+			.expects("send")
+			.once()
+			.withArgs(
+				"iamvictorcanto@gmail.com",
+				"Checkout Success",
+				"Your order was placed with success."
+			);
+
 		const { sut } = makeSut();
 		const input = {
 			cpf: "454.508.362-52",
@@ -147,15 +156,9 @@ describe("Checkout", () => {
 
 		const output = await sut.execute(input);
 		expect(output.total).toBe(6680);
-		expect(mailerSpy.calledOnce).toBeTruthy();
-		expect(
-			mailerSpy.calledWith(
-				"iamvictorcanto@gmail.com",
-				"Checkout Success",
-				"Your order was placed with success."
-			)
-		).toBeTruthy();
-		currencyGatewayStub.restore();
-		mailerSpy.restore();
+		currencyGatewayMock.verify();
+		currencyGatewayMock.restore();
+		mailerMock.verify();
+		mailerMock.restore();
 	});
 });
