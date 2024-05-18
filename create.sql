@@ -8,7 +8,8 @@ CREATE TABLE IF NOT EXISTS store.product (
     width INTEGER,
     height INTEGER,
     length INTEGER,
-    weight NUMERIC
+    weight NUMERIC,
+    currency TEXT
 );
 INSERT INTO store.product (
         description,
@@ -16,11 +17,13 @@ INSERT INTO store.product (
         width,
         height,
         length,
-        weight
+        weight,
+        currency
     )
-VALUES ('A', 1000, 100, 30, 10, 3),
-    ('B', 5000, 50, 50, 50, 22),
-    ('C', 30, 10, 10, 10, 0.9);
+VALUES ('A', 1000, 100, 30, 10, 3, 'BRL'),
+    ('B', 5000, 50, 50, 50, 22, 'BRL'),
+    ('C', 30, 10, 10, 10, 0.9, 'BRL'),
+    ('D', 100, 100, 30, 10, 3, 'USD');
 CREATE TABLE IF NOT EXISTS store.coupon (
     code TEXT PRIMARY KEY,
     percentage NUMERIC,
