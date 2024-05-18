@@ -1,8 +1,10 @@
 import Checkout from "../src/checkout";
 import CouponData from "../src/coupon-data";
 import { CouponModel } from "../src/coupon-model";
+import CurrencyGateway from "../src/currency-gateway";
 import ProductData from "../src/product-data";
 import { ProductModel } from "../src/product-model";
+import sinon from "sinon";
 
 const mockCouponDataDb = (): CouponData => {
 	class CouponDataDbStub implements CouponData {
@@ -100,6 +102,12 @@ const makeSut = (): SutTypes => {
 
 describe("Checkout", () => {
 	test("Deve fazer um pedido com 4 produtos com moedas diferentes", async () => {
+		const currencyGatewayStub = sinon
+			.stub(CurrencyGateway.prototype, "getCurrencies")
+			.resolves({
+				USD: 3,
+				BRL: 1,
+			});
 		const { sut } = makeSut();
 		const input = {
 			cpf: "454.508.362-52",
@@ -113,5 +121,6 @@ describe("Checkout", () => {
 
 		const output = await sut.execute(input);
 		expect(output.total).toBe(6680);
+		currencyGatewayStub.restore();
 	});
 });
