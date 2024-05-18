@@ -1,6 +1,7 @@
 import CouponData from "./coupon-data";
 import { CpfValidator } from "./cpf-validator";
 import CurrencyGateway from "./currency-gateway";
+import Mailer from "./mailer";
 import ProductData from "./product-data";
 
 export default class Checkout {
@@ -53,6 +54,14 @@ export default class Checkout {
 				total -= total * (coupon.percentage / 100);
 			}
 		}
+		const mailer = new Mailer();
+		if (input?.email) {
+			await mailer.send(
+				input.email,
+				"Checkout Success",
+				`Your order was placed with success.`
+			);
+		}
 		total += freight;
 		return { total };
 	}
@@ -60,6 +69,7 @@ export default class Checkout {
 
 export type CheckoutInput = {
 	cpf: string;
+	email?: string;
 	items: {
 		idProduct: number;
 		quantity: number;
