@@ -7,7 +7,9 @@ import ProductData from "./product-data";
 export default class Checkout {
 	constructor(
 		private readonly productData: ProductData,
-		private readonly couponData: CouponData
+		private readonly couponData: CouponData,
+		private readonly currencyGateway: CurrencyGateway,
+		private readonly mailer: Mailer
 	) {}
 
 	async execute(input: CheckoutInput) {
@@ -18,8 +20,7 @@ export default class Checkout {
 		}
 		let total = 0;
 		let freight = 0;
-		const currencyGateway = new CurrencyGateway();
-		const currencies = await currencyGateway.getCurrencies();
+		const currencies = await this.currencyGateway.getCurrencies();
 		const productsIds = new Set();
 		for (const item of items) {
 			if (productsIds.has(item.idProduct)) {
@@ -46,7 +47,6 @@ export default class Checkout {
 			const itemFreight = 1000 * volume * (density / 100);
 			freight += itemFreight >= 10 ? itemFreight : 10;
 		}
-
 		if (couponCode) {
 			const coupon = await this.couponData.getCoupon(couponCode);
 			const today = new Date();
@@ -54,9 +54,8 @@ export default class Checkout {
 				total -= total * (coupon.percentage / 100);
 			}
 		}
-		const mailer = new Mailer();
 		if (input?.email) {
-			await mailer.send(
+			await this.mailer.send(
 				input.email,
 				"Checkout Success",
 				`Your order was placed with success.`
