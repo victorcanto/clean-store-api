@@ -42,6 +42,7 @@ const mockProductDataDb = (): ProductData => {
 					height: 30,
 					length: 10,
 					weight: 3,
+					currency: "BRL",
 				},
 				2: {
 					idProduct: 2,
@@ -51,6 +52,7 @@ const mockProductDataDb = (): ProductData => {
 					height: 50,
 					length: 50,
 					weight: 22,
+					currency: "BRL",
 				},
 				3: {
 					idProduct: 3,
@@ -60,6 +62,17 @@ const mockProductDataDb = (): ProductData => {
 					height: 10,
 					length: 10,
 					weight: 0.9,
+					currency: "BRL",
+				},
+				4: {
+					idProduct: 4,
+					description: "D",
+					price: 100,
+					width: 100,
+					height: 30,
+					length: 10,
+					weight: 3,
+					currency: "USD",
 				},
 			};
 			return Promise.resolve(products[idProduct]);
@@ -86,7 +99,7 @@ const makeSut = (): SutTypes => {
 };
 
 describe("Checkout", () => {
-	test("Deve fazer um pedido com 3 produtos", async () => {
+	test("Deve fazer um pedido com 4 produtos com moedas diferentes", async () => {
 		const { sut } = makeSut();
 		const input = {
 			cpf: "454.508.362-52",
@@ -94,10 +107,11 @@ describe("Checkout", () => {
 				{ idProduct: 1, quantity: 1 },
 				{ idProduct: 2, quantity: 1 },
 				{ idProduct: 3, quantity: 3 },
+				{ idProduct: 4, quantity: 1 },
 			],
 		};
 
 		const output = await sut.execute(input);
-		expect(output.total).toBe(6350);
+		expect(output.total).toBe(6680);
 	});
 });
