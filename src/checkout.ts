@@ -1,6 +1,8 @@
+import Coupon from "./coupon";
 import CouponData from "./coupon-data";
 import { CpfValidator } from "./cpf-validator";
 import CurrencyGateway from "./currency-gateway";
+import FreightCalculator from "./freight-calculator";
 import Mailer from "./mailer";
 import OrderData from "./order-data";
 import ProductData from "./product-data";
@@ -37,23 +39,22 @@ export default class Checkout {
 				throw new Error("Quantity must be positive");
 			}
 			total +=
-				parseFloat(product.price) *
+				product.price *
 				(currencies[product.currency] || 1) *
 				item.quantity;
-			const volume =
-				(product.width / 100) *
-				(product.height / 100) *
-				(product.length / 100);
-
-			const density = parseFloat(product.weight) / volume;
-			const itemFreight = 1000 * volume * (density / 100);
-			freight += itemFreight >= 10 ? itemFreight : 10;
+			freight += FreightCalculator.calculate(product);
 		}
 		if (couponCode) {
-			const coupon = await this.couponData.getCoupon(couponCode);
-			const today = new Date();
-			if (coupon && coupon.expire_date.getTime() > today.getTime()) {
-				total -= total * (coupon.percentage / 100);
+			const couponData = await this.couponData.getCoupon(couponCode);
+			if (couponData) {
+				const coupon = new Coupon(
+					couponData.code,
+					couponData.percentage,
+					couponData.expireDate
+				);
+				if (coupon && !coupon.isExpired()) {
+					total -= coupon.getDiscount(total);
+				}
 			}
 		}
 		if (input?.email) {
