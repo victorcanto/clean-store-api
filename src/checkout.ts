@@ -2,12 +2,14 @@ import CouponData from "./coupon-data";
 import { CpfValidator } from "./cpf-validator";
 import CurrencyGateway from "./currency-gateway";
 import Mailer from "./mailer";
+import OrderData from "./order-data";
 import ProductData from "./product-data";
 
 export default class Checkout {
 	constructor(
 		private readonly productData: ProductData,
 		private readonly couponData: CouponData,
+		private readonly orderData: OrderData,
 		private readonly currencyGateway: CurrencyGateway,
 		private readonly mailer: Mailer
 	) {}
@@ -62,7 +64,15 @@ export default class Checkout {
 			);
 		}
 		total += freight;
-		return { total };
+		const today = new Date();
+		const year = today.getFullYear();
+		const sequence = await this.orderData.count();
+		const code = `${year}${(sequence + 1).toString().padStart(8, "0")}`;
+		await this.orderData.save({
+			cpf: input.cpf,
+			total,
+		});
+		return { code, total };
 	}
 }
 

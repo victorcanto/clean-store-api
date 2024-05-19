@@ -2,6 +2,9 @@ import Checkout, { type CheckoutInput } from "./checkout";
 import ProductDataDb from "./product-data-db";
 import CouponDataDb from "./coupon-data-db";
 import axios from "axios";
+import OrderDataDb from "./order-data-db";
+import CurrencyGatewayRandom from "./currency-gateway-random";
+import MailerConsole from "./mailer-console";
 
 axios.defaults.validateStatus = () => true;
 
@@ -36,7 +39,10 @@ process.stdin.on("data", async (data) => {
 		try {
 			const checkout = new Checkout(
 				new ProductDataDb(),
-				new CouponDataDb()
+				new CouponDataDb(),
+				new OrderDataDb(),
+				new CurrencyGatewayRandom(),
+				new MailerConsole()
 			);
 			const output = await checkout.execute(input);
 			console.log(output.total);

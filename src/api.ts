@@ -5,6 +5,7 @@ import CurrencyGatewayRandom from "./currency-gateway-random";
 import MailerConsole from "./mailer-console";
 import env from "./config/env";
 import express from "express";
+import OrderDataDb from "./order-data-db";
 const app = express();
 
 const router = express.Router();
@@ -15,6 +16,7 @@ router.post("/checkout", async (req, res) => {
 		const checkout = new Checkout(
 			new ProductDataDb(),
 			new CouponDataDb(),
+			new OrderDataDb(),
 			new CurrencyGatewayRandom(),
 			new MailerConsole()
 		);
