@@ -13,22 +13,14 @@ import ProductData from "../../src/domain/repositories/product-data";
 export const fakeCouponDataDb = (): CouponData => {
 	class CouponDataDbStub implements CouponData {
 		async getCoupon(code: string): Promise<Coupon> {
-			const coupons: { [code: string]: any } = {
-				VALE10: {
-					code: "VALE10",
-					percentage: 10,
-					expireDate: new Date("2025-01-01"),
-				},
-				VALE20: {
-					code: "VALE20",
-					percentage: 20,
-					expireDate: new Date("2025-01-01"),
-				},
-				VALE50_EXPIRED: {
-					code: "VALE50_EXPIRED",
-					percentage: 50,
-					expireDate: new Date("2024-01-01"),
-				},
+			const coupons: { [code: string]: Coupon } = {
+				VALE10: new Coupon("VALE10", 10, new Date("2025-01-01")),
+				VALE20: new Coupon("VALE20", 20, new Date("2025-01-01")),
+				VALE50_EXPIRED: new Coupon(
+					"VALE50_EXPIRED",
+					50,
+					new Date("2024-01-01")
+				),
 			};
 			return Promise.resolve(
 				new Coupon(
@@ -46,46 +38,10 @@ export const fakeProductDataDb = (): ProductData => {
 	class ProductDataDbStub implements ProductData {
 		async getProduct(idProduct: number): Promise<Product> {
 			const products: { [idProduct: number]: Product } = {
-				1: {
-					idProduct: 1,
-					description: "A",
-					price: 1000,
-					width: 100,
-					height: 30,
-					length: 10,
-					weight: 3,
-					currency: "BRL",
-				},
-				2: {
-					idProduct: 2,
-					description: "B",
-					price: 5000,
-					width: 50,
-					height: 50,
-					length: 50,
-					weight: 22,
-					currency: "BRL",
-				},
-				3: {
-					idProduct: 3,
-					description: "C",
-					price: 30,
-					width: 10,
-					height: 10,
-					length: 10,
-					weight: 0.9,
-					currency: "BRL",
-				},
-				4: {
-					idProduct: 4,
-					description: "D",
-					price: 100,
-					width: 100,
-					height: 30,
-					length: 10,
-					weight: 3,
-					currency: "USD",
-				},
+				1: new Product(1, "A", 1000, 100, 30, 10, 3, "BRL"),
+				2: new Product(2, "B", 5000, 50, 50, 50, 22, "BRL"),
+				3: new Product(3, "C", 30, 10, 10, 10, 0.9, "BRL"),
+				4: new Product(4, "D", 100, 100, 30, 100, 3, "USD"),
 			};
 			return Promise.resolve(products[idProduct]);
 		}
