@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"test": "jest",
+		"test": "jest --runInBand",
 		"test:verbose": "pnpm test -- --verbose",
 		"test:watch": "pnpm test -- --watch",
 		"test:ci": "pnpm test -- --coverage --ci",
