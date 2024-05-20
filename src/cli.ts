@@ -5,8 +5,10 @@ import axios from "axios";
 import OrderDataDb from "./infra/data/order-data-db";
 import CurrencyGatewayRandom from "./infra/gateway/currency-gateway-random";
 import MailerConsole from "./infra/mailer/mailer-console";
+import PgPromiseConnection from "./infra/db/pg-promise-connection";
 
 axios.defaults.validateStatus = () => true;
+const connection = new PgPromiseConnection();
 
 const input: CheckoutInput = {
 	cpf: "",
@@ -38,9 +40,9 @@ process.stdin.on("data", async (data) => {
 	if (command.startsWith("checkout")) {
 		try {
 			const checkout = new Checkout(
-				new ProductDataDb(),
-				new CouponDataDb(),
-				new OrderDataDb(),
+				new ProductDataDb(connection),
+				new CouponDataDb(connection),
+				new OrderDataDb(connection),
 				new CurrencyGatewayRandom(),
 				new MailerConsole()
 			);

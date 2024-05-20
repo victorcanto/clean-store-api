@@ -5,6 +5,9 @@ import CouponDataDb from "./infra/data/coupon-data-db";
 import OrderDataDb from "./infra/data/order-data-db";
 import CurrencyGatewayRandom from "./infra/gateway/currency-gateway-random";
 import MailerConsole from "./infra/mailer/mailer-console";
+import PgPromiseConnection from "./infra/db/pg-promise-connection";
+
+const connection = new PgPromiseConnection();
 
 async function init() {
 	const connectionQueue = await amqp.connect(
@@ -16,9 +19,9 @@ async function init() {
 		const input = JSON.parse(message.content.toString());
 		try {
 			const checkout = new Checkout(
-				new ProductDataDb(),
-				new CouponDataDb(),
-				new OrderDataDb(),
+				new ProductDataDb(connection),
+				new CouponDataDb(connection),
+				new OrderDataDb(connection),
 				new CurrencyGatewayRandom(),
 				new MailerConsole()
 			);
