@@ -9,4 +9,12 @@ export default class Product {
 		readonly weight: number,
 		readonly currency = "BRL"
 	) {}
+
+	getVolume(): number {
+		return (this.width / 100) * (this.height / 100) * (this.length / 100);
+	}
+
+	getDensity(): number {
+		return this.weight / this.getVolume();
+	}
 }
