@@ -1,4 +1,4 @@
-import OrderData from "./order-data";
+import OrderData from "../domain/repositories/order-data";
 
 export default class GetOrderByCPf {
 	constructor(private readonly orderData: OrderData) {}
@@ -6,7 +6,7 @@ export default class GetOrderByCPf {
 	async execute(cpf: string): Promise<Output> {
 		const order = await this.orderData.getByCpf(cpf);
 		return {
-			total: parseFloat(order?.total) || 0,
+			total: order.getTotal() || 0,
 		};
 	}
 }

@@ -1,16 +1,19 @@
-import Checkout, { CheckoutInput } from "../../src/checkout";
-import CouponData from "../../src/coupon-data";
-import { CouponModel } from "../../src/coupon-model";
-import CurrencyGateway from "../../src/currency-gateway";
-import Mailer from "../../src/mailer";
-import OrderData from "../../src/order-data";
-import ProductData from "../../src/product-data";
-import { ProductModel } from "../../src/product-model";
+import Checkout, { CheckoutInput } from "../../src/application/checkout";
+import Coupon from "../../src/domain/entities/coupon";
+import CouponData from "../../src/domain/repositories/coupon-data";
+import Cpf from "../../src/domain/entities/cpf";
+import Currencies from "../../src/domain/entities/currencies";
+import CurrencyGateway from "../../src/infra/gateway/currency-gateway";
+import Mailer from "../../src/infra/mailer/mailer";
+import Order from "../../src/domain/entities/order";
+import OrderData from "../../src/domain/repositories/order-data";
+import Product from "../../src/domain/entities/product";
+import ProductData from "../../src/domain/repositories/product-data";
 
 export const fakeCouponDataDb = (): CouponData => {
 	class CouponDataDbStub implements CouponData {
-		async getCoupon(code: string): Promise<CouponModel> {
-			const coupons: { [code: string]: CouponModel } = {
+		async getCoupon(code: string): Promise<Coupon> {
+			const coupons: { [code: string]: any } = {
 				VALE10: {
 					code: "VALE10",
 					percentage: 10,
@@ -27,7 +30,13 @@ export const fakeCouponDataDb = (): CouponData => {
 					expireDate: new Date("2024-01-01"),
 				},
 			};
-			return Promise.resolve(coupons[code]);
+			return Promise.resolve(
+				new Coupon(
+					coupons[code].code,
+					coupons[code].percentage,
+					coupons[code].expireDate
+				)
+			);
 		}
 	}
 	return new CouponDataDbStub();
@@ -35,8 +44,8 @@ export const fakeCouponDataDb = (): CouponData => {
 
 export const fakeProductDataDb = (): ProductData => {
 	class ProductDataDbStub implements ProductData {
-		async getProduct(idProduct: number): Promise<ProductModel> {
-			const products: { [idProduct: number]: ProductModel } = {
+		async getProduct(idProduct: number): Promise<Product> {
+			const products: { [idProduct: number]: Product } = {
 				1: {
 					idProduct: 1,
 					description: "A",
@@ -84,13 +93,22 @@ export const fakeProductDataDb = (): ProductData => {
 	return new ProductDataDbStub();
 };
 
+export const fakeOrder = (cpf: string): Order => {
+	const order = new Order(new Cpf(cpf));
+	order.addItem(new Product(1, "A", 1000, 100, 30, 10, 3, "BRL"), 1);
+	order.addItem(new Product(2, "B", 5000, 50, 50, 50, 22, "BRL"), 1);
+	order.addItem(new Product(3, "C", 30, 10, 10, 10, 0.9, "BRL"), 3);
+	return order;
+};
+
 export const fakeOrderDataDb = (): any => {
 	class OrderDataDbStub implements OrderData {
-		async save(order: any): Promise<void> {
+		async save(order: Order): Promise<void> {
 			return Promise.resolve();
 		}
-		async getByCpf(cpf: string): Promise<any> {
-			return Promise.resolve({ total: 6350 });
+		async getByCpf(cpf: string): Promise<Order> {
+			const order = fakeOrder(cpf);
+			return Promise.resolve(order);
 		}
 		async count(): Promise<number> {
 			return Promise.resolve(0);
@@ -101,11 +119,11 @@ export const fakeOrderDataDb = (): any => {
 
 export const fakeCurrencyGateway = (): CurrencyGateway => {
 	class CurrencyGatewayStub implements CurrencyGateway {
-		async getCurrencies(): Promise<{ [key: string]: number }> {
-			return Promise.resolve({
-				BRL: 1,
-				USD: 3,
-			});
+		async getCurrencies(): Promise<Currencies> {
+			const currencies = new Currencies();
+			currencies.addCurrency("USD", 3);
+			currencies.addCurrency("BRL", 1);
+			return Promise.resolve(currencies);
 		}
 	}
 	return new CurrencyGatewayStub();

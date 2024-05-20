@@ -85,9 +85,9 @@ describe("API", () => {
 			"http://localhost:3333/checkout",
 			input
 		);
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(422);
 		const output = response.data;
-		expect(output.total).toBe(6350);
+		expect(output.message).toBe("Coupon not found");
 	});
 
 	test("Deve fazer um pedido com 3 produtos com cupom expirado", async () => {

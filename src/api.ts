@@ -1,22 +1,25 @@
-import Checkout from "./checkout";
-import ProductDataDb from "./product-data-db";
-import CouponDataDb from "./coupon-data-db";
-import CurrencyGatewayRandom from "./currency-gateway-random";
-import MailerConsole from "./mailer-console";
+import Checkout from "./application/checkout";
+import ProductDataDb from "./infra/data/product-data-db";
+import CouponDataDb from "./infra/data/coupon-data-db";
+import CurrencyGatewayRandom from "./infra/gateway/currency-gateway-random";
+import MailerConsole from "./infra/mailer/mailer-console";
 import env from "./config/env";
 import express from "express";
-import OrderDataDb from "./order-data-db";
+import OrderDataDb from "./infra/data/order-data-db";
+import PgPromiseConnection from "./infra/db/pg-promise-connection";
 const app = express();
 
 const router = express.Router();
 app.use(express.json());
 
+const connection = new PgPromiseConnection();
+
 router.post("/checkout", async (req, res) => {
 	try {
 		const checkout = new Checkout(
-			new ProductDataDb(),
-			new CouponDataDb(),
-			new OrderDataDb(),
+			new ProductDataDb(connection),
+			new CouponDataDb(connection),
+			new OrderDataDb(connection),
 			new CurrencyGatewayRandom(),
 			new MailerConsole()
 		);

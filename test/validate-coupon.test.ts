@@ -1,5 +1,5 @@
-import CouponData from "../src/coupon-data";
-import ValidateCoupon from "../src/validate-coupon";
+import CouponData from "../src/domain/repositories/coupon-data";
+import ValidateCoupon from "../src/application/validate-coupon";
 import { fakeCouponDataDb } from "./helpers/fake";
 
 type SutTypes = {

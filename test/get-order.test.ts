@@ -1,5 +1,5 @@
-import GetOrderByCPf from "../src/get-order-by-cpf";
-import OrderDataDb from "../src/order-data-db";
+import GetOrderByCPf from "../src/application/get-order-by-cpf";
+import OrderDataDb from "../src/infra/data/order-data-db";
 import {
 	fakeCheckout,
 	fakeCheckoutInput,

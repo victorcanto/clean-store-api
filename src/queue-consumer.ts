@@ -1,10 +1,10 @@
 import amqp from "amqplib";
-import Checkout from "./checkout";
-import ProductDataDb from "./product-data-db";
-import CouponDataDb from "./coupon-data-db";
-import OrderDataDb from "./order-data-db";
-import CurrencyGatewayRandom from "./currency-gateway-random";
-import MailerConsole from "./mailer-console";
+import Checkout from "./application/checkout";
+import ProductDataDb from "./infra/data/product-data-db";
+import CouponDataDb from "./infra/data/coupon-data-db";
+import OrderDataDb from "./infra/data/order-data-db";
+import CurrencyGatewayRandom from "./infra/gateway/currency-gateway-random";
+import MailerConsole from "./infra/mailer/mailer-console";
 
 async function init() {
 	const connectionQueue = await amqp.connect(

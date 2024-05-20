@@ -1,9 +1,9 @@
-import ProductDataDb from "../src/product-data-db";
-import { SimulateFreight } from "../src/simulate-freight";
+import { SimulateFreight } from "../src/application/simulate-freight";
 import { fakeProductDataDb } from "./helpers/fake";
+import ProductData from "../src/domain/repositories/product-data";
 
 type SutTypes = {
-	productDataStub: ProductDataDb;
+	productDataStub: ProductData;
 	sut: SimulateFreight;
 };
 
