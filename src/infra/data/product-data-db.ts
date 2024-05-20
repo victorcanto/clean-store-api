@@ -5,7 +5,7 @@ import DbConnection from "../db/db-connection";
 export default class ProductDataDb implements ProductData {
 	constructor(private readonly connection: DbConnection) {}
 
-	async getProduct(idProduct: number): Promise<Product | null> {
+	async getProduct(idProduct: number): Promise<Product> {
 		const [productData] = await this.connection.query(
 			"select * from store.product where id_product = $1",
 			[idProduct]
