@@ -9,6 +9,16 @@ export default class RestController {
 
 	execute() {
 		this.httpServer.on(
+			"get",
+			"/products",
+			async (params: any, body: any) => {
+				const output = [
+					{ idProduct: 4, description: "D", price: 1000 },
+				];
+				return output;
+			}
+		);
+		this.httpServer.on(
 			"post",
 			"/checkout",
 			async (params: any, body: any) => {
