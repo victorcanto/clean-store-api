@@ -1,60 +1,24 @@
-import Checkout, { type CheckoutInput } from "./application/checkout";
+import Checkout from "./application/checkout";
 import ProductDataDb from "./infra/data/product-data-db";
 import CouponDataDb from "./infra/data/coupon-data-db";
-import axios from "axios";
 import OrderDataDb from "./infra/data/order-data-db";
 import CurrencyGatewayRandom from "./infra/gateway/currency-gateway-random";
 import MailerConsole from "./infra/mailer/mailer-console";
 import PgPromiseConnection from "./infra/db/pg-promise-connection";
+import CLIController from "./infra/cli/cli-controller";
+import axios from "axios";
+import CLIHandlerNode from "./infra/cli/cli-handler-node";
 
 axios.defaults.validateStatus = () => true;
+
 const connection = new PgPromiseConnection();
-
-const input: CheckoutInput = {
-	cpf: "",
-	items: [],
-	coupon: "",
-};
-
-process.stdin.on("data", async (data) => {
-	const command = data.toString().replace("\n", "");
-	if (command.startsWith("set-cpf")) {
-		const params = command.replace("set-cpf ", "");
-		input.cpf = params;
-	}
-
-	if (command.startsWith("add-item")) {
-		const params = command.replace("add-item ", "");
-		const [idProduct, quantity] = params.split(" ");
-		input.items.push({
-			idProduct: parseInt(idProduct),
-			quantity: parseInt(quantity),
-		});
-	}
-
-	if (command.startsWith("set-coupon")) {
-		const params = command.replace("set-coupon ", "");
-		input.coupon = params;
-	}
-
-	if (command.startsWith("checkout")) {
-		try {
-			const checkout = new Checkout(
-				new ProductDataDb(connection),
-				new CouponDataDb(connection),
-				new OrderDataDb(connection),
-				new CurrencyGatewayRandom(),
-				new MailerConsole()
-			);
-			const output = await checkout.execute(input);
-			console.log(output.total);
-			return output.total;
-		} catch (error: any) {
-			console.log(error.message);
-		}
-	}
-
-	if (command.startsWith("exit")) {
-		process.exit();
-	}
-});
+const checkout = new Checkout(
+	new ProductDataDb(connection),
+	new CouponDataDb(connection),
+	new OrderDataDb(connection),
+	new CurrencyGatewayRandom(),
+	new MailerConsole()
+);
+const handler = new CLIHandlerNode();
+const cliController = new CLIController(handler, checkout);
+cliController.execute();
