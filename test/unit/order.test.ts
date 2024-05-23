@@ -1,7 +1,7 @@
-import Coupon from "../src/domain/entities/coupon";
-import Cpf from "../src/domain/entities/cpf";
-import Order from "../src/domain/entities/order";
-import Product from "../src/domain/entities/product";
+import Coupon from "../../src/domain/entities/coupon";
+import Cpf from "../../src/domain/entities/cpf";
+import Order from "../../src/domain/entities/order";
+import Product from "../../src/domain/entities/product";
 import Mockdate from "mockdate";
 
 describe("Order", () => {

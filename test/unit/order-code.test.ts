@@ -1,4 +1,4 @@
-import OrderCode from "../src/domain/entities/order-code";
+import OrderCode from "../../src/domain/entities/order-code";
 import Mockdate from "mockdate";
 
 describe("OrderCode", () => {

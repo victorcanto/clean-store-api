@@ -1,4 +1,4 @@
-import { CpfValidator } from "../src/domain/entities/cpf-validator";
+import { CpfValidator } from "../../src/domain/entities/cpf-validator";
 
 const validCpfs = [
 	"454.508.362-52",

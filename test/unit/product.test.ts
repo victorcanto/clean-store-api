@@ -1,4 +1,4 @@
-import Product from "../src/domain/entities/product";
+import Product from "../../src/domain/entities/product";
 
 describe("Product", () => {
 	test("Deve criar um produto", () => {

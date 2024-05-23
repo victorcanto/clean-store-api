@@ -1,11 +1,11 @@
-import Checkout from "../src/application/checkout";
-import CouponData from "../src/domain/repositories/coupon-data";
-import CurrencyGateway from "../src/infra/gateway/currency-gateway";
-import Mailer from "../src/infra/mailer/mailer";
-import Order from "../src/domain/entities/order";
-import OrderData from "../src/domain/repositories/order-data";
-import Product from "../src/domain/entities/product";
-import ProductData from "../src/domain/repositories/product-data";
+import Checkout from "../../src/application/checkout";
+import CouponData from "../../src/domain/repositories/coupon-data";
+import CurrencyGateway from "../../src/infra/gateway/currency-gateway";
+import Mailer from "../../src/infra/mailer/mailer";
+import Order from "../../src/domain/entities/order";
+import OrderData from "../../src/domain/repositories/order-data";
+import Product from "../../src/domain/entities/product";
+import ProductData from "../../src/domain/repositories/product-data";
 import {
 	fakeCheckoutInput,
 	fakeCouponDataDb,
@@ -14,7 +14,7 @@ import {
 	fakeOrder,
 	fakeOrderDataDb,
 	fakeProductDataDb,
-} from "./helpers/fake";
+} from "../helpers/fake";
 import Mockdate from "mockdate";
 
 type SutTypes = {

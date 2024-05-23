@@ -1,10 +1,10 @@
-import GetOrderByCPf from "../src/application/get-order-by-cpf";
-import OrderDataDb from "../src/infra/data/order-data-db";
+import GetOrderByCPf from "../../src/application/get-order-by-cpf";
+import OrderDataDb from "../../src/infra/data/order-data-db";
 import {
 	fakeCheckout,
 	fakeCheckoutInput,
 	fakeOrderDataDb,
-} from "./helpers/fake";
+} from "../helpers/fake";
 
 type SutTypes = {
 	orderDataStub: OrderDataDb;
