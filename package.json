@@ -8,10 +8,10 @@
 		"test:verbose": "pnpm test -- --verbose",
 		"test:watch": "pnpm test -- --watch",
 		"test:ci": "pnpm test -- --coverage --ci",
-		"dev": "nodemon ./src/api.ts",
-		"cli": "ts-node ./src/cli.ts",
+		"dev": "nodemon ./src/api.main.ts",
+		"cli": "ts-node ./src/cli.main.ts",
+		"queue": "ts-node ./src/queue.main.ts",
 		"queue:producer": "ts-node ./src/queue-producer.ts",
-		"queue:consumer": "ts-node ./src/queue-consumer.ts",
 		"up": "docker compose up -d",
 		"down": "docker compose down"
 	},

@@ -6,10 +6,7 @@ import CurrencyGatewayRandom from "./infra/gateway/currency-gateway-random";
 import MailerConsole from "./infra/mailer/mailer-console";
 import PgPromiseConnection from "./infra/db/pg-promise-connection";
 import CLIController from "./infra/cli/cli-controller";
-import axios from "axios";
 import CLIHandlerNode from "./infra/cli/cli-handler-node";
-
-axios.defaults.validateStatus = () => true;
 
 const connection = new PgPromiseConnection();
 const checkout = new Checkout(
