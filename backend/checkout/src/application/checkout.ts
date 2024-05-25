@@ -6,12 +6,14 @@ import Mailer from "../infra/mailer/mailer";
 import Order from "../domain/entities/order";
 import OrderData from "../domain/repositories/order-data";
 import ProductData from "../domain/repositories/product-data";
+import CalculateFreight from "./calculate-freight";
 
 export default class Checkout {
 	constructor(
 		private readonly productData: ProductData,
 		private readonly couponData: CouponData,
 		private readonly orderData: OrderData,
+		private readonly calculateFreight: CalculateFreight,
 		private readonly currencyGateway: CurrencyGateway,
 		private readonly mailer: Mailer
 	) {}
@@ -19,7 +21,6 @@ export default class Checkout {
 	async execute(input: CheckoutInput): Promise<CheckoutOutput> {
 		const currencies = await this.currencyGateway.getCurrencies();
 		const order = new Order(new Cpf(input.cpf));
-
 		for (const item of input.items) {
 			const product = await this.productData.getProduct(item.idProduct);
 			if (product) {
@@ -31,6 +32,12 @@ export default class Checkout {
 				);
 			}
 		}
+		const freight = await this.calculateFreight.execute({
+			from: input.from,
+			to: input.to,
+			items: input.items,
+		});
+		order.freight = freight.total;
 		if (input.coupon) {
 			const coupon = await this.couponData.getCoupon(input.coupon);
 			if (coupon) {
@@ -59,6 +66,8 @@ export default class Checkout {
 }
 
 export type CheckoutInput = {
+	from?: string;
+	to?: string;
 	cpf: string;
 	email?: string;
 	items: {

@@ -7,14 +7,24 @@ import MailerConsole from "./infra/mailer/mailer-console";
 import PgPromiseConnection from "./infra/db/pg-promise-connection";
 import CLIController from "./infra/cli/cli-controller";
 import CLIHandlerNode from "./infra/cli/cli-handler-node";
+import ZipCodeDataDb from "./infra/data/zipcode-data-db";
+import CalculateFreight from "./application/calculate-freight";
 
 const connection = new PgPromiseConnection();
+const productDataDb = new ProductDataDb(connection);
+const couponDataDb = new CouponDataDb(connection);
+const orderDataDb = new OrderDataDb(connection);
+const zipCodeDataDb = new ZipCodeDataDb(connection);
+const calculateFreight = new CalculateFreight(productDataDb, zipCodeDataDb);
+const currencyGatewayRandom = new CurrencyGatewayRandom();
+const mailerConsole = new MailerConsole();
 const checkout = new Checkout(
-	new ProductDataDb(connection),
-	new CouponDataDb(connection),
-	new OrderDataDb(connection),
-	new CurrencyGatewayRandom(),
-	new MailerConsole()
+	productDataDb,
+	couponDataDb,
+	orderDataDb,
+	calculateFreight,
+	currencyGatewayRandom,
+	mailerConsole
 );
 const handler = new CLIHandlerNode();
 const cliController = new CLIController(handler, checkout);

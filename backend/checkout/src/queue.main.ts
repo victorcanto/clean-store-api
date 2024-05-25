@@ -7,17 +7,27 @@ import MailerConsole from "./infra/mailer/mailer-console";
 import PgPromiseConnection from "./infra/db/pg-promise-connection";
 import RabbitMQAdapter from "./infra/queue/rabbit-mq-adapter";
 import QueueController from "./infra/queue/queue-controller";
+import ZipCodeDataDb from "./infra/data/zipcode-data-db";
+import CalculateFreight from "./application/calculate-freight";
 
 async function init() {
 	const queue = new RabbitMQAdapter();
 	await queue.connect();
 	const connection = new PgPromiseConnection();
+	const productDataDb = new ProductDataDb(connection);
+	const couponDataDb = new CouponDataDb(connection);
+	const orderDataDb = new OrderDataDb(connection);
+	const zipCodeDataDb = new ZipCodeDataDb(connection);
+	const calculateFreight = new CalculateFreight(productDataDb, zipCodeDataDb);
+	const currencyGatewayRandom = new CurrencyGatewayRandom();
+	const mailerConsole = new MailerConsole();
 	const checkout = new Checkout(
-		new ProductDataDb(connection),
-		new CouponDataDb(connection),
-		new OrderDataDb(connection),
-		new CurrencyGatewayRandom(),
-		new MailerConsole()
+		productDataDb,
+		couponDataDb,
+		orderDataDb,
+		calculateFreight,
+		currencyGatewayRandom,
+		mailerConsole
 	);
 	const queueController = new QueueController(queue, checkout);
 	queueController.execute();
