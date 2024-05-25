@@ -1,7 +1,3 @@
-DROP TABLE IF EXISTS store.coupon;
-DROP TABLE IF EXISTS store.item;
-DROP TABLE IF EXISTS store.product;
-DROP TABLE IF EXISTS store.order;
 CREATE SCHEMA IF NOT EXISTS store;
 CREATE TABLE IF NOT EXISTS store.product (
     id_product SERIAL PRIMARY KEY,
@@ -53,3 +49,13 @@ CREATE TABLE IF NOT EXISTS store.item (
     quantity INTEGER,
     PRIMARY KEY (id_order, id_product)
 );
+CREATE TABLE IF NOT EXISTS store.zipcode (
+    code TEXT PRIMARY KEY,
+    street TEXT,
+    neighborhood TEXT,
+    lat NUMERIC,
+    long NUMERIC
+);
+INSERT INTO store.zipcode (code, street, neighborhood, lat, long)
+VALUES ('22030060', '', '', -27.5945, -48.5477),
+    ('88015600', '', '', -22.9129, -43.2003);
