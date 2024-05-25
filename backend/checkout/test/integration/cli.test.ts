@@ -1,3 +1,4 @@
+import CalculateFreight from "../../src/application/calculate-freight";
 import Checkout from "../../src/application/checkout";
 import CLIController from "../../src/infra/cli/cli-controller";
 import CLIHandler from "../../src/infra/cli/cli-handler";
@@ -5,6 +6,7 @@ import CLIHandlerMemory from "../../src/infra/cli/cli-handler-memory";
 import CouponDataDb from "../../src/infra/data/coupon-data-db";
 import OrderDataDb from "../../src/infra/data/order-data-db";
 import ProductDataDb from "../../src/infra/data/product-data-db";
+import ZipCodeDataDb from "../../src/infra/data/zipcode-data-db";
 import PgPromiseConnection from "../../src/infra/db/pg-promise-connection";
 import CurrencyGatewayRandom from "../../src/infra/gateway/currency-gateway-random";
 import MailerConsole from "../../src/infra/mailer/mailer-console";
@@ -21,12 +23,20 @@ type SutTypes = {
 };
 
 const makeSut = (): SutTypes => {
+	const productDataDb = new ProductDataDb(connection);
+	const couponDataDb = new CouponDataDb(connection);
+	const orderDataDb = new OrderDataDb(connection);
+	const zipCodeDataDb = new ZipCodeDataDb(connection);
+	const calculateFreight = new CalculateFreight(productDataDb, zipCodeDataDb);
+	const currencyGatewayRandom = new CurrencyGatewayRandom();
+	const mailerConsole = new MailerConsole();
 	const checkout = new Checkout(
-		new ProductDataDb(connection),
-		new CouponDataDb(connection),
-		new OrderDataDb(connection),
-		new CurrencyGatewayRandom(),
-		new MailerConsole()
+		productDataDb,
+		couponDataDb,
+		orderDataDb,
+		calculateFreight,
+		currencyGatewayRandom,
+		mailerConsole
 	);
 	const handler = new CLIHandlerMemory();
 	const sut = new CLIController(handler, checkout);

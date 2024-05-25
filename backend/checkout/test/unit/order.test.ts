@@ -29,7 +29,8 @@ describe("Order", () => {
 		order.addItem(new Product(1, "A", 1000, 100, 30, 10, 3, "BRL"), 1);
 		order.addItem(new Product(2, "B", 5000, 50, 50, 50, 22, "BRL"), 1);
 		order.addItem(new Product(3, "C", 30, 10, 10, 10, 0.9, "BRL"), 3);
-		expect(order.getTotal()).toBe(6350);
+		order.freight = 280;
+		expect(order.getTotal()).toBe(6370);
 	});
 
 	test("Deve criar um pedido com cupom de desconto", async () => {
@@ -40,7 +41,8 @@ describe("Order", () => {
 		order.addCoupon(
 			new Coupon("VALE20", 20, new Date("2024-12-01T00:00:00"))
 		);
-		expect(order.getTotal()).toBe(5132);
+		order.freight = 280;
+		expect(order.getTotal()).toBe(5152);
 	});
 
 	test("Nao deve criar um pedido com quantidade negativa", async () => {

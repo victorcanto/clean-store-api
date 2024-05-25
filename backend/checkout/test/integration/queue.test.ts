@@ -1,7 +1,9 @@
+import CalculateFreight from "../../src/application/calculate-freight";
 import Checkout from "../../src/application/checkout";
 import CouponDataDb from "../../src/infra/data/coupon-data-db";
 import OrderDataDb from "../../src/infra/data/order-data-db";
 import ProductDataDb from "../../src/infra/data/product-data-db";
+import ZipCodeDataDb from "../../src/infra/data/zipcode-data-db";
 import PgPromiseConnection from "../../src/infra/db/pg-promise-connection";
 import CurrencyGatewayRandom from "../../src/infra/gateway/currency-gateway-random";
 import MailerConsole from "../../src/infra/mailer/mailer-console";
@@ -21,12 +23,20 @@ type SutTypes = {
 };
 
 const makeSut = (): SutTypes => {
+	const productDataDb = new ProductDataDb(connection);
+	const couponDataDb = new CouponDataDb(connection);
+	const orderDataDb = new OrderDataDb(connection);
+	const zipCodeDataDb = new ZipCodeDataDb(connection);
+	const calculateFreight = new CalculateFreight(productDataDb, zipCodeDataDb);
+	const currencyGatewayRandom = new CurrencyGatewayRandom();
+	const mailerConsole = new MailerConsole();
 	const checkout = new Checkout(
-		new ProductDataDb(connection),
-		new CouponDataDb(connection),
-		new OrderDataDb(connection),
-		new CurrencyGatewayRandom(),
-		new MailerConsole()
+		productDataDb,
+		couponDataDb,
+		orderDataDb,
+		calculateFreight,
+		currencyGatewayRandom,
+		mailerConsole
 	);
 	const queue = new QueueMemory();
 	const sut = new QueueController(queue, checkout);
@@ -55,7 +65,7 @@ describe("Queue", () => {
 		const [returnValue] = checkoutSpy.returnValues;
 		const output = await returnValue;
 		expect(output.code).toBe("202400000001");
-		expect(output.total).toBe(6350);
+		expect(output.total).toBe(6370);
 		checkoutSpy.restore();
 	});
 
@@ -76,7 +86,7 @@ describe("Queue", () => {
 		const [returnValue] = checkoutSpy.returnValues;
 		const output = await returnValue;
 		expect(output.code).toBe("202400000001");
-		expect(output.total).toBe(5741);
+		expect(output.total).toBe(5761);
 		checkoutSpy.restore();
 	});
 });

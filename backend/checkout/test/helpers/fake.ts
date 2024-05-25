@@ -11,6 +11,7 @@ import Product from "../../src/domain/entities/product";
 import ProductData from "../../src/domain/repositories/product-data";
 import ZipCode from "../../src/domain/entities/zipcode";
 import ZipCodeData from "../../src/domain/repositories/zipcode-data";
+import CalculateFreight from "../../src/application/calculate-freight";
 
 export const fakeCouponDataDb = (): CouponData => {
 	class CouponDataDbStub implements CouponData {
@@ -101,26 +102,8 @@ export const fakeMailer = (): Mailer => {
 	return new MailerStub();
 };
 
-export const fakeCheckout = (): Checkout => {
-	return new Checkout(
-		fakeProductDataDb(),
-		fakeCouponDataDb(),
-		fakeOrderDataDb(),
-		fakeCurrencyGateway(),
-		fakeMailer()
-	);
-};
-
-export const fakeCheckoutInput = (): CheckoutInput => {
-	return {
-		cpf: "454.508.362-52",
-		email: "iamvictorcanto@gmail.com",
-		items: [
-			{ idProduct: 1, quantity: 1 },
-			{ idProduct: 2, quantity: 1 },
-			{ idProduct: 3, quantity: 3 },
-		],
-	};
+export const fakeCalculateFreight = (): CalculateFreight => {
+	return new CalculateFreight(fakeProductDataDb(), fakeZipCodeData());
 };
 
 export const fakeZipCodeData = (): ZipCodeData => {
@@ -140,4 +123,27 @@ export const fakeZipCodeData = (): ZipCodeData => {
 		}
 	}
 	return new ZipCodeDataStub();
+};
+
+export const fakeCheckoutInput = (): CheckoutInput => {
+	return {
+		cpf: "454.508.362-52",
+		email: "iamvictorcanto@gmail.com",
+		items: [
+			{ idProduct: 1, quantity: 1 },
+			{ idProduct: 2, quantity: 1 },
+			{ idProduct: 3, quantity: 3 },
+		],
+	};
+};
+
+export const fakeCheckout = (): Checkout => {
+	return new Checkout(
+		fakeProductDataDb(),
+		fakeCouponDataDb(),
+		fakeOrderDataDb(),
+		fakeCalculateFreight(),
+		fakeCurrencyGateway(),
+		fakeMailer()
+	);
 };

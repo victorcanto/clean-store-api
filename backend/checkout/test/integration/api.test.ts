@@ -32,7 +32,7 @@ describe("API", () => {
 		);
 		expect(response.status).toBe(200);
 		const output = response.data;
-		expect(output.total).toBe(6350);
+		expect(output.total).toBe(6370);
 	});
 
 	test("Nao deve fazer um pedido com produto que nao existe", async () => {
@@ -67,7 +67,7 @@ describe("API", () => {
 		);
 		expect(response.status).toBe(200);
 		const output = response.data;
-		expect(output.total).toBe(5132);
+		expect(output.total).toBe(5152);
 	});
 
 	test("Nao deve aplicar o desconto se o cupom for invalido", async () => {
@@ -107,7 +107,7 @@ describe("API", () => {
 		);
 		expect(response.status).toBe(200);
 		const output = response.data;
-		expect(output.total).toBe(6350);
+		expect(output.total).toBe(6370);
 	});
 
 	test("Deve fazer um pedido com quantidade negativa", async () => {

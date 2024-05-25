@@ -7,6 +7,7 @@ import OrderData from "../../src/domain/repositories/order-data";
 import Product from "../../src/domain/entities/product";
 import ProductData from "../../src/domain/repositories/product-data";
 import {
+	fakeCalculateFreight,
 	fakeCheckoutInput,
 	fakeCouponDataDb,
 	fakeCurrencyGateway,
@@ -30,12 +31,14 @@ const makeSut = (): SutTypes => {
 	const productDataStub = fakeProductDataDb();
 	const couponDataStub = fakeCouponDataDb();
 	const orderDataStub = fakeOrderDataDb();
+	const calculateFreightStub = fakeCalculateFreight();
 	const currencyGatewayStub = fakeCurrencyGateway();
 	const mailerStub = fakeMailer();
 	const sut = new Checkout(
 		productDataStub,
 		couponDataStub,
 		orderDataStub,
+		calculateFreightStub,
 		currencyGatewayStub,
 		mailerStub
 	);
@@ -78,7 +81,7 @@ describe("Checkout", () => {
 		);
 		const output = await sut.execute(input);
 		expect(currencyGatewaySpy).toHaveBeenCalledTimes(1);
-		expect(output.total).toBe(6680);
+		expect(output.total).toBe(6700);
 	});
 
 	test("Deve salvar o pedido", async () => {
@@ -87,9 +90,10 @@ describe("Checkout", () => {
 		const orderDataSpy = jest.spyOn(orderDataStub, "save");
 		const output = await sut.execute(input);
 		const order = fakeOrderWithFourItems(input.cpf);
+		order.freight = 310;
 		expect(orderDataSpy).toHaveBeenCalledWith(order);
 		expect(orderDataSpy).toHaveBeenCalledTimes(1);
-		expect(output.total).toBe(6680);
+		expect(output.total).toBe(6700);
 	});
 
 	test("Deve enviar um email informando que o pedido foi concluído", async () => {
@@ -103,7 +107,7 @@ describe("Checkout", () => {
 			"Your order was placed with success."
 		);
 		expect(mailerSpy).toHaveBeenCalledTimes(1);
-		expect(output.total).toBe(6680);
+		expect(output.total).toBe(6700);
 	});
 
 	test("Deve fazer um pedido com 3 produtos com codigo do pedido", async () => {
@@ -111,5 +115,14 @@ describe("Checkout", () => {
 		const input = fakeCheckoutInput();
 		const output = await sut.execute(input);
 		expect(output.code).toBe("202400000001");
+	});
+
+	test("Deve fazer um pedido com 3 produtos com CEP de origem e destino", async () => {
+		const { sut } = makeSut();
+		const input = fakeCheckoutInput();
+		input.from = "22060030";
+		input.to = "88015600";
+		const output = await sut.execute(input);
+		expect(output.total).toBe(6370);
 	});
 });

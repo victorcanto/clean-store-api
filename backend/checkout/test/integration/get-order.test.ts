@@ -37,6 +37,6 @@ describe("Get Order", () => {
 		const { sut } = makeSut();
 		await checkout.execute(input);
 		const output = await sut.execute(input.cpf);
-		expect(output.total).toBe(6350);
+		expect(output.total).toBe(6090);
 	});
 });
