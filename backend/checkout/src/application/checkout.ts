@@ -5,15 +5,15 @@ import CurrencyGateway from "../infra/gateway/currency-gateway";
 import Mailer from "../infra/mailer/mailer";
 import Order from "../domain/entities/order";
 import OrderData from "../domain/repositories/order-data";
-import ProductData from "../domain/repositories/product-data";
-import CalculateFreight from "./calculate-freight";
+import FreightGateway from "../infra/gateway/freight-gateway";
+import CatalogGateway from "../infra/gateway/catalog-gateway";
 
 export default class Checkout {
 	constructor(
-		private readonly productData: ProductData,
+		private readonly catalogGateway: CatalogGateway,
 		private readonly couponData: CouponData,
 		private readonly orderData: OrderData,
-		private readonly calculateFreight: CalculateFreight,
+		private readonly freightGateway: FreightGateway,
 		private readonly currencyGateway: CurrencyGateway,
 		private readonly mailer: Mailer
 	) {}
@@ -21,22 +21,28 @@ export default class Checkout {
 	async execute(input: CheckoutInput): Promise<CheckoutOutput> {
 		const currencies = await this.currencyGateway.getCurrencies();
 		const order = new Order(new Cpf(input.cpf));
+		const freightItems = [];
 		for (const item of input.items) {
-			const product = await this.productData.getProduct(item.idProduct);
-			if (product) {
-				order.addItem(
-					product,
-					item.quantity,
-					product.currency,
-					currencies.getCurrency(product.currency)
-				);
-			}
+			const product = await this.catalogGateway.getProduct(
+				item.idProduct
+			);
+			order.addItem(
+				product,
+				item.quantity,
+				product.currency,
+				currencies.getCurrency(product.currency)
+			);
+			freightItems.push({
+				volume: product.volume,
+				density: product.density,
+				quantity: item.quantity,
+			});
 		}
-		const freight = await this.calculateFreight.execute({
-			from: input.from,
-			to: input.to,
-			items: input.items,
-		});
+		const freight = await this.freightGateway.calculateFreight(
+			freightItems,
+			input.from,
+			input.to
+		);
 		order.freight = freight.total;
 		if (input.coupon) {
 			const coupon = await this.couponData.getCoupon(input.coupon);

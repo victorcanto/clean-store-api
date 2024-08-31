@@ -8,10 +8,9 @@ import Mailer from "../../src/infra/mailer/mailer";
 import Order from "../../src/domain/entities/order";
 import OrderData from "../../src/domain/repositories/order-data";
 import Product from "../../src/domain/entities/product";
-import ProductData from "../../src/domain/repositories/product-data";
-import ZipCode from "../../src/domain/entities/zipcode";
-import ZipCodeData from "../../src/domain/repositories/zipcode-data";
-import CalculateFreight from "../../src/application/calculate-freight";
+import FreightGateway from "../../src/infra/gateway/freight-gateway";
+import FreightGatewayHttp from "../../src/infra/gateway/freight-gateway-http";
+import CatalogGateway from "../../src/infra/gateway/catalog-gateway";
 
 export const fakeCouponDataDb = (): CouponData => {
 	class CouponDataDbStub implements CouponData {
@@ -37,8 +36,8 @@ export const fakeCouponDataDb = (): CouponData => {
 	return new CouponDataDbStub();
 };
 
-export const fakeProductDataDb = (): ProductData => {
-	class ProductDataDbStub implements ProductData {
+export const fakeCatalogGateway = (): CatalogGateway => {
+	class CatalogGatewayStub implements CatalogGateway {
 		async getProduct(idProduct: number): Promise<Product> {
 			const products: { [idProduct: number]: Product } = {
 				1: new Product(1, "A", 1000, 100, 30, 10, 3, "BRL"),
@@ -49,7 +48,7 @@ export const fakeProductDataDb = (): ProductData => {
 			return Promise.resolve(products[idProduct]);
 		}
 	}
-	return new ProductDataDbStub();
+	return new CatalogGatewayStub();
 };
 
 export const fakeOrder = (cpf: string): Order => {
@@ -102,27 +101,8 @@ export const fakeMailer = (): Mailer => {
 	return new MailerStub();
 };
 
-export const fakeCalculateFreight = (): CalculateFreight => {
-	return new CalculateFreight(fakeProductDataDb(), fakeZipCodeData());
-};
-
-export const fakeZipCodeData = (): ZipCodeData => {
-	class ZipCodeDataStub implements ZipCodeData {
-		async get(code: string): Promise<ZipCode | undefined> {
-			if (code === "22030060") {
-				return Promise.resolve(
-					new ZipCode("22030060", "", "", -27.5945, -48.5477)
-				);
-			}
-			if (code === "88015600") {
-				return Promise.resolve(
-					new ZipCode("88015600", "", "", -22.9129, -43.2003)
-				);
-			}
-			return Promise.resolve(undefined);
-		}
-	}
-	return new ZipCodeDataStub();
+export const fakeFreightGateway = (): FreightGateway => {
+	return new FreightGatewayHttp();
 };
 
 export const fakeCheckoutInput = (): CheckoutInput => {
@@ -139,10 +119,10 @@ export const fakeCheckoutInput = (): CheckoutInput => {
 
 export const fakeCheckout = (): Checkout => {
 	return new Checkout(
-		fakeProductDataDb(),
+		fakeCatalogGateway(),
 		fakeCouponDataDb(),
 		fakeOrderDataDb(),
-		fakeCalculateFreight(),
+		fakeFreightGateway(),
 		fakeCurrencyGateway(),
 		fakeMailer()
 	);

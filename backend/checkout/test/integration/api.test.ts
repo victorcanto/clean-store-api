@@ -13,6 +13,7 @@ describe("API", () => {
 		);
 		expect(response.status).toBe(422);
 		const output = response.data;
+		console.log(output);
 		expect(output.message).toBe("Invalid cpf");
 	});
 
@@ -47,6 +48,7 @@ describe("API", () => {
 		);
 		expect(response.status).toBe(422);
 		const output = response.data;
+		console.log(output);
 		expect(output.message).toBe("Product not found");
 	});
 

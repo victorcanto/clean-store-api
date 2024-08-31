@@ -1,15 +1,14 @@
-import CalculateFreight from "../../src/application/calculate-freight";
 import Checkout from "../../src/application/checkout";
 import CLIController from "../../src/infra/cli/cli-controller";
 import CLIHandler from "../../src/infra/cli/cli-handler";
 import CLIHandlerMemory from "../../src/infra/cli/cli-handler-memory";
 import CouponDataDb from "../../src/infra/data/coupon-data-db";
 import OrderDataDb from "../../src/infra/data/order-data-db";
-import ProductDataDb from "../../src/infra/data/product-data-db";
-import ZipCodeDataDb from "../../src/infra/data/zipcode-data-db";
 import PgPromiseConnection from "../../src/infra/db/pg-promise-connection";
 import CurrencyGatewayRandom from "../../src/infra/gateway/currency-gateway-random";
 import MailerConsole from "../../src/infra/mailer/mailer-console";
+import FreightGatewayHttp from "../../src/infra/gateway/freight-gateway-http";
+import CatalogGatewayHttp from "../../src/infra/gateway/catalog-gateway-http";
 import axios from "axios";
 import sinon from "sinon";
 
@@ -23,18 +22,18 @@ type SutTypes = {
 };
 
 const makeSut = (): SutTypes => {
-	const productDataDb = new ProductDataDb(connection);
+	const catalogGateway = new CatalogGatewayHttp();
 	const couponDataDb = new CouponDataDb(connection);
 	const orderDataDb = new OrderDataDb(connection);
-	const zipCodeDataDb = new ZipCodeDataDb(connection);
-	const calculateFreight = new CalculateFreight(productDataDb, zipCodeDataDb);
+	const freightGateway = new FreightGatewayHttp();
 	const currencyGatewayRandom = new CurrencyGatewayRandom();
 	const mailerConsole = new MailerConsole();
+
 	const checkout = new Checkout(
-		productDataDb,
+		catalogGateway,
 		couponDataDb,
 		orderDataDb,
-		calculateFreight,
+		freightGateway,
 		currencyGatewayRandom,
 		mailerConsole
 	);

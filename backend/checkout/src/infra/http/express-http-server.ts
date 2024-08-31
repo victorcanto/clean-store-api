@@ -1,6 +1,6 @@
 import HttpServer from "./http-server";
 import express, { Express, Request, Response } from "express";
-import cors from "cors"
+import cors from "cors";
 
 export default class ExpressHtppServer implements HttpServer {
 	app: Express;
@@ -8,7 +8,7 @@ export default class ExpressHtppServer implements HttpServer {
 	constructor() {
 		this.app = express();
 		this.app.use(express.json());
-		this.app.use(cors())
+		this.app.use(cors());
 	}
 
 	on(method: string, path: string, callback: Function): void {
@@ -23,6 +23,6 @@ export default class ExpressHtppServer implements HttpServer {
 		});
 	}
 	listen(port: number): void {
-		this.app.listen(port);
+		this.app.listen(port, () => console.log(`App running at http://localhost:${port}`));
 	}
 }

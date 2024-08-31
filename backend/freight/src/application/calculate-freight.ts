@@ -1,13 +1,9 @@
 import DistanceCalculator from "../domain/entities/distance-calculator";
 import FreightCalculator from "../domain/entities/freight-calculator";
-import ProductData from "../domain/repositories/product-data";
 import ZipCodeData from "../domain/repositories/zipcode-data";
 
 export default class CalculateFreight {
-	constructor(
-		private readonly productData: ProductData,
-		private readonly zipCodeData: ZipCodeData
-	) {}
+	constructor(private readonly zipCodeData: ZipCodeData) {}
 
 	async execute(input: Input): Promise<Output> {
 		let distance;
@@ -21,8 +17,12 @@ export default class CalculateFreight {
 		}
 		let total = 0;
 		for (const item of input.items) {
-			const product = await this.productData.getProduct(item.idProduct);
-			total += FreightCalculator.calculate(product, distance) * item.quantity;
+			total +=
+				FreightCalculator.calculate(
+					item.volume,
+					item.density,
+					distance
+				) * item.quantity;
 		}
 		return { total };
 	}
@@ -31,7 +31,7 @@ export default class CalculateFreight {
 type Input = {
 	from?: string;
 	to?: string;
-	items: { idProduct: number; quantity: number }[];
+	items: { volume: number; density: number; quantity: number }[];
 };
 
 type Output = {

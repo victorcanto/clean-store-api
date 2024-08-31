@@ -11,6 +11,7 @@ export default class CheckoutGatewayHttp implements CheckoutGateway {
 		const productsData = await this.httpClient.get(
 			`${this.baseUrl}/products`
 		);
+		console.log(productsData);
 		const products: Product[] = [];
 		for (const productData of productsData) {
 			products.push(

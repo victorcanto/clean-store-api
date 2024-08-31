@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "driver": "PostgreSQL",
+            "connectString": "postgresql://postgres:mypgdbpass@localhost:5432/cleanstore",
+            "name": "cleanstore"
+        }
+    ]
+}

@@ -1,11 +1,10 @@
-import CalculateFreight from "../../src/application/calculate-freight";
 import Checkout from "../../src/application/checkout";
 import CouponDataDb from "../../src/infra/data/coupon-data-db";
 import OrderDataDb from "../../src/infra/data/order-data-db";
-import ProductDataDb from "../../src/infra/data/product-data-db";
-import ZipCodeDataDb from "../../src/infra/data/zipcode-data-db";
 import PgPromiseConnection from "../../src/infra/db/pg-promise-connection";
+import CatalogGatewayHttp from "../../src/infra/gateway/catalog-gateway-http";
 import CurrencyGatewayRandom from "../../src/infra/gateway/currency-gateway-random";
+import FreightGatewayHttp from "../../src/infra/gateway/freight-gateway-http";
 import MailerConsole from "../../src/infra/mailer/mailer-console";
 import Queue from "../../src/infra/queue/queue";
 import QueueController from "../../src/infra/queue/queue-controller";
@@ -23,18 +22,18 @@ type SutTypes = {
 };
 
 const makeSut = (): SutTypes => {
-	const productDataDb = new ProductDataDb(connection);
+	const catalogGateway = new CatalogGatewayHttp();
 	const couponDataDb = new CouponDataDb(connection);
 	const orderDataDb = new OrderDataDb(connection);
-	const zipCodeDataDb = new ZipCodeDataDb(connection);
-	const calculateFreight = new CalculateFreight(productDataDb, zipCodeDataDb);
+	const freightGateway = new FreightGatewayHttp();
 	const currencyGatewayRandom = new CurrencyGatewayRandom();
 	const mailerConsole = new MailerConsole();
+	
 	const checkout = new Checkout(
-		productDataDb,
+		catalogGateway,
 		couponDataDb,
 		orderDataDb,
-		calculateFreight,
+		freightGateway,
 		currencyGatewayRandom,
 		mailerConsole
 	);

@@ -1,0 +1,50 @@
+version: "3.8"
+services:
+    postgres:
+        image: postgres
+        restart: always
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: mypgdbpass
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+    pgadmin:
+        image: dpage/pgadmin4
+        restart: always
+        ports:
+            - "5555:80"
+        environment:
+            PGADMIN_DEFAULT_EMAIL: admin@pgadmin.com
+            PGADMIN_DEFAULT_PASSWORD: mypgadminpass
+        volumes:
+            - pgadmin_data:/var/lib/pgadmin
+        depends_on:
+            - postgres
+
+    rabbitmq:
+        image: rabbitmq:3-management
+        restart: always
+        container_name: "rabbitmq"
+        ports:
+            - 5672:5672
+            - 15672:15672
+        environment:
+            RABBITMQ_DEFAULT_USER: rabbitmq
+            RABBITMQ_DEFAULT_PASS: rabbitmqpass
+        volumes:
+            - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+            - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+        networks:
+            - rabbitmq_go_net
+        depends_on:
+            - postgres  
+
+volumes:
+    postgres_data:
+    pgadmin_data:
+
+networks:
+    rabbitmq_go_net:
+        driver: bridge

@@ -22,4 +22,23 @@ export default class ProductDataDb implements ProductData {
 			productData.currency
 		);
 	}
+
+	async getAllProducts(): Promise<Product[]> {
+		const productData = await this.connection.query(
+			"select * from store.product"
+		);
+		if (!productData) throw new Error("Products not found");
+		return productData.map((product: any) => {
+			return new Product(
+				product.id_product,
+				product.description,
+				parseFloat(product.price),
+				parseInt(product.width),
+				parseInt(product.height),
+				parseInt(product.length),
+				parseFloat(product.weight),
+				product.currency
+			);
+		});
+	}
 }

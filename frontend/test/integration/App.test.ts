@@ -4,6 +4,9 @@ import { mount } from "@vue/test-utils";
 import AppVue from "../../src/App.vue";
 import CheckoutGatewayHttp from "../../src/infra/gateway/checkout-gateway-http";
 import AxiosAdapter from "../../src/infra/http/axios-adapter";
+import axios from "axios";
+
+axios.defaults.validateStatus = () => true;
 
 describe("App", () => {
 	test("Deve ter um pedido vazio", async () => {

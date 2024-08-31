@@ -1,47 +1,46 @@
 import CalculateFreight from "../../src/application/calculate-freight";
-import { fakeProductDataDb, fakeZipCodeData } from "../helpers/fake";
-import ProductData from "../../src/domain/repositories/product-data";
+import { fakeZipCodeData } from "../helpers/fake";
+
 import ZipCodeData from "../../src/domain/repositories/zipcode-data";
-import ProductDataDb from "../../src/infra/data/product-data-db";
+
 import PgPromiseConnection from "../../src/infra/db/pg-promise-connection";
 import ZipCodeDataDb from "../../src/infra/data/zipcode-data-db";
 
-const connection = new PgPromiseConnection();
+let connection: PgPromiseConnection;
 
 type SutTypes = {
-	productDataStub: ProductData;
 	zipCodeDataStub: ZipCodeData;
-	connection: PgPromiseConnection;
 	sut: CalculateFreight;
 };
 
 const makeSut = (useFake = true): SutTypes => {
-	let productDataStub: ProductData;
-	let zipCodeDataStub: ZipCodeData;
-	if (!useFake) {
-		productDataStub = new ProductDataDb(connection);
-		zipCodeDataStub = new ZipCodeDataDb(connection);
-	} else {
-		productDataStub = fakeProductDataDb();
-		zipCodeDataStub = fakeZipCodeData();
-	}
-	const sut = new CalculateFreight(productDataStub, zipCodeDataStub);
+	const zipCodeDataStub = useFake
+		? fakeZipCodeData()
+		: new ZipCodeDataDb(connection);
+
+	const sut = new CalculateFreight(zipCodeDataStub);
 	return {
-		productDataStub,
 		zipCodeDataStub,
-		connection,
 		sut,
 	};
 };
 
 describe("Simulate Freight", () => {
-	afterEach(async () => {});
+	beforeEach(async () => {
+		connection = new PgPromiseConnection();
+	});
+
+	afterEach(async () => {
+		await connection.close();
+	});
+
 	test("Deve simular o frete para um pedido sem CEP de origem e destino", async () => {
 		const { sut } = makeSut();
 		const input = {
 			items: [
 				{
-					idProduct: 1,
+					volume: 0.03,
+					density: 100,
 					quantity: 1,
 				},
 			],
@@ -57,7 +56,8 @@ describe("Simulate Freight", () => {
 			to: "88015600",
 			items: [
 				{
-					idProduct: 1,
+					volume: 0.03,
+					density: 100,
 					quantity: 1,
 				},
 			],
@@ -67,19 +67,19 @@ describe("Simulate Freight", () => {
 	});
 
 	test("Deve simular o frete para um pedido com CEP de origem e destino usando o banco de dados", async () => {
-		const { sut, connection } = makeSut(false);
+		const { sut } = makeSut(false);
 		const input = {
 			from: "22030060",
 			to: "88015600",
 			items: [
 				{
-					idProduct: 1,
+					volume: 0.03,
+					density: 100,
 					quantity: 1,
 				},
 			],
 		};
 		const output = await sut.execute(input);
 		expect(output.total).toBe(22.45);
-		await connection.close();
 	});
 });

@@ -4,11 +4,7 @@ import Order from './domain/entities/order'
 import Product from './domain/entities/product'
 import CheckoutGateway from './infra/gateway/checkout-gateway'
 
-const products = reactive([
-    new Product(1, "A", 1000),
-    new Product(2, "B", 5000),
-    new Product(3, "C", 30),
-])
+const products = reactive<Product[]>([])
 
 const order = reactive(new Order("454.508.362-52"))
 

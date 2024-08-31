@@ -1,26 +1,26 @@
 import Checkout from "../../src/application/checkout";
 import CouponData from "../../src/domain/repositories/coupon-data";
 import CurrencyGateway from "../../src/infra/gateway/currency-gateway";
+import FreightGatewayHttp from "../../src/infra/gateway/freight-gateway-http";
 import Mailer from "../../src/infra/mailer/mailer";
 import Order from "../../src/domain/entities/order";
 import OrderData from "../../src/domain/repositories/order-data";
 import Product from "../../src/domain/entities/product";
-import ProductData from "../../src/domain/repositories/product-data";
 import {
-	fakeCalculateFreight,
 	fakeCheckoutInput,
 	fakeCouponDataDb,
 	fakeCurrencyGateway,
 	fakeMailer,
 	fakeOrder,
 	fakeOrderDataDb,
-	fakeProductDataDb,
 } from "../helpers/fake";
 import Mockdate from "mockdate";
+import CatalogGatewayHttp from "../../src/infra/gateway/catalog-gateway-http";
+import CatalogGateway from "../../src/infra/gateway/catalog-gateway";
 
 type SutTypes = {
 	couponDataStub: CouponData;
-	productDataStub: ProductData;
+	catalogGateway: CatalogGateway;
 	orderDataStub: OrderData;
 	currencyGatewayStub: CurrencyGateway;
 	mailerStub: Mailer;
@@ -28,23 +28,23 @@ type SutTypes = {
 };
 
 const makeSut = (): SutTypes => {
-	const productDataStub = fakeProductDataDb();
+	const catalogGateway = new CatalogGatewayHttp();
 	const couponDataStub = fakeCouponDataDb();
 	const orderDataStub = fakeOrderDataDb();
-	const calculateFreightStub = fakeCalculateFreight();
+	const freightGateway = new FreightGatewayHttp();
 	const currencyGatewayStub = fakeCurrencyGateway();
 	const mailerStub = fakeMailer();
 	const sut = new Checkout(
-		productDataStub,
+		catalogGateway,
 		couponDataStub,
 		orderDataStub,
-		calculateFreightStub,
+		freightGateway,
 		currencyGatewayStub,
 		mailerStub
 	);
 	return {
 		couponDataStub,
-		productDataStub,
+		catalogGateway,
 		orderDataStub,
 		currencyGatewayStub,
 		mailerStub,
@@ -59,7 +59,12 @@ const fakeCheckoutInputWithFourProducts = () => ({
 
 export const fakeOrderWithFourItems = (cpf: string): Order => {
 	const order = fakeOrder(cpf);
-	order.addItem(new Product(4, "D", 100, 100, 30, 10, 3, "USD"), 1, "USD", 3);
+	order.addItem(
+		new Product(4, "D", 100, 100, 30, 10, 3, "USD", 0.03, 100),
+		1,
+		"USD",
+		3
+	);
 	return order;
 };
 
